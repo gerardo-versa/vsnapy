@@ -60,7 +60,7 @@ def get_url(arg):
 
 def create_file(querytype, sitename):
 	dateTimeObj = datetime.now()
-	timestamp = str(dateTimeObj.year) + str(dateTimeObj.month) + str(dateTimeObj.day) + '-' + str(dateTimeObj.hour) + str(dateTimeObj.minute) + str(dateTimeObj.second) + '-'
+	timestamp = str(dateTimeObj.year) + str(dateTimeObj.month) + str(dateTimeObj.day) + '-' + dateTimeObj.strftime("%H%M%S") + '-'
 	#print(timestamp)
 	filename = "output/" + timestamp + querytype + "-" + sitename + ".txt"
 	outF = open(filename, "w")
@@ -69,7 +69,7 @@ def create_file(querytype, sitename):
 	outF.close()
 	return filename
 
-def print_to_file(file, text):
+def print_to_file(filename, text):
 	outF = open(filename, "a")	
 	print(text, file=outF)
 	outF.close()
