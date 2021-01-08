@@ -1,0 +1,24 @@
+# config.yaml file
+
+sites:
+    - MEO-GW-011:
+        - Versa:   
+            
+            - Versa-Control-VR
+            - Versa-LAN-VR
+            - INET-MEO-Transport-VR
+
+        - CruiseCompany:
+            
+            - CruiseCompany-LAN-VR
+    
+    - MEO-GW-002:
+        - Versa:
+
+            - Versa-Control-VR
+            - Versa-LAN-VR
+            - INET-MEO-Transport-VR
+
+        - CruiseCompany:
+
+            - CruiseCompany-LAN-VR
