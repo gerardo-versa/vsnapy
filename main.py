@@ -60,7 +60,7 @@ def get_url(arg):
 
 def create_file(querytype, sitename):
 	dateTimeObj = datetime.now()
-	timestamp = str(dateTimeObj.year) + str(dateTimeObj.month) + str(dateTimeObj.day) + '-' + dateTimeObj.strftime("%H%M%S") + '-'
+	timestamp = str(dateTimeObj.year) + "-" +dateTimeObj.strftime("%m") + str(dateTimeObj.day) + '-' + dateTimeObj.strftime("%H%M%S") + '-'
 	#print(timestamp)
 	filename = "output/" + timestamp + querytype + "-" + sitename + ".txt"
 	outF = open(filename, "w")
