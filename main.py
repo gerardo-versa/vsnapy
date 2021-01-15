@@ -13,7 +13,7 @@ from routes import Route, RoutingTable
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 user = 'Administrator'
 password = 'Versa@123$'
-base_url = 'https://10.48.245.2:9182'
+#base_url = 'https://10.48.245.2:9182'
 VD_IP = "10.48.245.2"
 #url = 'https://10.48.245.2:9182/api/config/nms/provider/analytics-cluster'
 
@@ -30,33 +30,12 @@ def get_data(url):
 		return raw     
 
 def check_ping():
-    response = os.system("ping -c 1 -W 500 " + VD_IP+ " > nul")
+    response = os.system("ping -c 4 -W 500 " + VD_IP)
     # and then check the response...
     if response == 0:
         return True
     else:
         return False
-
-
-def sites():
-	return 0
-
-def routes():
-	return 1
-
-switcher = {
-	0: base_url +  '/vnms/cloud/systems/getAllAppliancesBasicDetails?offset=0&limit=20',
-	#1: 'https://10.48.245.2:9182/api/config/nms/provider/analytics-cluster',
-	1: base_url + '/api/operational/devices/device/DEVICE/live-status/rib/org/org/ORG/routing-instance-name/Versa-RTINAME-VR,ipv4/route-entry-summary'
-	#1: one,
-	#2: two
-}
-
-def get_url(arg):
-	# Get the function from switcher dictionary
-	func = switcher.get(arg, "nothing")
-	# Execute the function
-	return func
 
 def create_file(querytype, sitename):
 	dateTimeObj = datetime.now()
@@ -75,7 +54,6 @@ def print_to_file(filename, text):
 	outF.close()
 
 def read_yaml(path):
-	basic_route_url = base_url + '/api/operational/devices/device/SITE/live-status/rib/org/org/ORG/routing-instance-name/RTINAME,ipv4/route-entry-summary'
 	url_list = []
 	with open(path) as file:
 		# The FullLoader parameter handles the conversion from YAML
@@ -88,11 +66,12 @@ def read_config():
 	#print(config)
 	return config
 
-def read_routes():
+def read_routes(base_url):
 	basic_route_url = base_url + '/api/operational/devices/device/SITE/live-status/rib/org/org/ORG/routing-instance-name/RTINAME,ipv4/route-entry-summary'
 	url_list = []
 	sites_check_list = []
 	routes = read_yaml('routes.yaml')
+	print(routes)
 	for sites in routes.get('sites'):
 		site = list(sites.keys())[0]
 		#print(site)
@@ -121,6 +100,8 @@ def read_routes():
 #			print(key.get('name'))
 #			print(key.get('ipAddress'))
 #print(routes())
+
+
 config = read_config()
 user = config['user']
 password = config['password']
@@ -133,12 +114,12 @@ base_url = 'https://' + VD_IP + ':9182'
 
 ping = check_ping()
 if ping:
-	url = get_url(sites())
+	url = base_url + '/vnms/cloud/systems/getAllAppliancesBasicDetails?offset=0&limit=20'
 	try:
 		sites = get_data(url)
 		#print(sites.text)
 		Site.get_site_names(sites)
-		routes_site_list = read_routes()
+		routes_site_list = read_routes(base_url)
 		for site in routes_site_list:
 			sitename = site[0]
 			url_list = site[1]

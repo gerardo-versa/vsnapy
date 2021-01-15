@@ -1,4 +1,4 @@
 # config.yaml file
-director-ip: 10.48.245.2
-user: 'Administrator'
+director-ip: 10.196.22.110
+user: 'gmelesio'
 password: 'Versa@123$'
