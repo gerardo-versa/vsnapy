@@ -1,144 +1,111 @@
 import requests
-#import sites_list
 import json
-import jsondiff
 import urllib3
 import os
 import yaml
 from datetime import datetime
-#from jsndiff import diff
 from sites import Site
 from routes import Route, RoutingTable
+from pathlib import Path
+
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-user = 'Administrator'
-password = 'Versa@123$'
-#base_url = 'https://10.48.245.2:9182'
-VD_IP = "10.48.245.2"
-#url = 'https://10.48.245.2:9182/api/config/nms/provider/analytics-cluster'
+
 
 class AuthError(Exception):
-	pass
+    pass
 
 class URLError(Exception):
-	pass
+    pass
 
-def get_data(url):
-		raw = requests.get(url, auth=(user, password), headers={"Accept": "application/json"}, verify=False)
-		if raw.status_code != 200:
-			raise URLError
-		return raw     
+def get_data(url: str):
+        raw = requests.get(url, auth=(user, password), headers={"Accept": "application/json"}, verify=False)
+        if raw.status_code != 200:
+            raise URLError
+        return raw
 
 def check_ping():
-    response = os.system("ping -c 4 -W 500 " + VD_IP)
-    # and then check the response...
-    if response == 0:
-        return True
-    else:
-        return False
+    response = os.system(f"ping -c 4 -W 500 {VD_IP}")
+    return not response
 
-def create_file(querytype, sitename):
-	dateTimeObj = datetime.now()
-	timestamp = str(dateTimeObj.year) + "-" +dateTimeObj.strftime("%m") + str(dateTimeObj.day) + '-' + dateTimeObj.strftime("%H%M%S") + '-'
-	#print(timestamp)
-	filename = "output/" + timestamp + querytype + "-" + sitename + ".txt"
-	outF = open(filename, "w")
-	print("SITE: " + sitename, file=outF)
-	print("QUERY TYPE: " + querytype, file=outF)
-	outF.close()
-	return filename
+def create_file(querytype: str, sitename: str) -> Path:
+    dateTimeObj = datetime.now()
+    timestamp = dateTimeObj.strftime("%Y-%m-%d-%H%M%S")
+    #print(timestamp)
+    filename = Path(f"output/{timestamp}-{querytype}-{sitename}.txt")
+    with filename.open("w") as outF:
+        print("SITE: " + sitename, file=outF)
+        print("QUERY TYPE: " + querytype, file=outF)
+    return filename
 
-def print_to_file(filename, text):
-	outF = open(filename, "a")	
-	print(text, file=outF)
-	outF.close()
+def append_to_file(filename, text):
+    with filename.open("a"):
+        filename.write(text)
 
-def read_yaml(path):
-	url_list = []
-	with open(path) as file:
-		# The FullLoader parameter handles the conversion from YAML
-		# scalar values to Python the dictionary format
-		config = yaml.load(file, Loader=yaml.FullLoader)
-	return config
-
-def read_config():
-	config = read_yaml('config.yaml')
-	#print(config)
-	return config
 
 def read_routes(base_url):
-	basic_route_url = base_url + '/api/operational/devices/device/SITE/live-status/rib/org/org/ORG/routing-instance-name/RTINAME,ipv4/route-entry-summary'
-	url_list = []
-	sites_check_list = []
-	routes = read_yaml('routes.yaml')
-	print(routes)
-	for sites in routes.get('sites'):
-		site = list(sites.keys())[0]
-		#print(site)
-		url_list_test = []
-		for orgs in  list(sites.values()):
-			for org in orgs:
-				orgname = list(org.keys())[0]
-				rti_list = list(org.values())[0]
-				for rti in rti_list:
-					#print(rti)
-					#print(site + ' ' + orgname + ' ' + rti)
-					url = basic_route_url.replace("SITE", site)
-					url = url.replace("ORG", orgname)
-					url = url.replace("RTINAME", rti)
-					url_list.append([site, rti, url])
-					url_list_test.append([rti,url,orgname])
-		sites_check_list.append([site,url_list_test])
-	#print(sites_check_list)
-	return sites_check_list
-
-#def get_site_names(json_text):
-#	json_object = json.loads(json_text.text)
-#	pairs = json_object.items()
-#	for key, value in pairs:
-#		for key  in value:
-#			print(key.get('name'))
-#			print(key.get('ipAddress'))
-#print(routes())
+    basic_route_url = f'{base_url}/api/operational/devices/device/SITE/live-status/rib/org/org/ORG/routing-instance-name/RTINAME,ipv4/route-entry-summary'
+    url_list = []
+    sites_check_list = []
+    routes = yaml.load(Path('routes.yaml').open(), Loader=yaml.FullLoader)
+    print(routes)
+    for sites in routes.get('sites'):
+        site = list(sites.keys())[0]
+        #print(site)
+        url_list_test = []
+        for orgs in  list(sites.values()):
+            for org in orgs:
+                orgname = list(org.keys())[0]
+                rti_list = list(org.values())[0]
+                for rti in rti_list:
+                    #print(rti)
+                    #print(site + ' ' + orgname + ' ' + rti)
+                    url = basic_route_url.replace("SITE", site)
+                    url = url.replace("ORG", orgname)
+                    url = url.replace("RTINAME", rti)
+                    url_list.append([site, rti, url])
+                    url_list_test.append([rti,url,orgname])
+        sites_check_list.append([site,url_list_test])
+    #print(sites_check_list)
+    return sites_check_list
 
 
-config = read_config()
+config = yaml.load(Path('config.yaml').open(), Loader=yaml.FullLoader)
 user = config['user']
 password = config['password']
 VD_IP = config['director-ip']
 
-print('Director IP: ' + VD_IP + "    User: " + user + "    password: " + password)
-#base_url = 'https://10.48.245.2:9182'
+print(f'Director IP: {VD_IP}    User: {user}    password: {password}')
 
-base_url = 'https://' + VD_IP + ':9182'
+base_url = f'https://{VD_IP}:9182'
 
 ping = check_ping()
 if ping:
-	url = base_url + '/vnms/cloud/systems/getAllAppliancesBasicDetails?offset=0&limit=20'
-	try:
-		sites = get_data(url)
-		#print(sites.text)
-		Site.get_site_names(sites)
-		routes_site_list = read_routes(base_url)
-		for site in routes_site_list:
-			sitename = site[0]
-			url_list = site[1]
-			print()
-			print("SITE: " + sitename)
-			filename = create_file("Routes",sitename)
-			for url1 in url_list:
-				print("!")
-				print(url1)
-				#print(url1[2])
-				try:
-					routes = get_data(url1[1])
-					RoutingTable.print_routes_to_file(routes, url1[0], filename)
-				except URLError:
-					pdata = "Data received Site: " + sitename + " Org: "+ url1[2] + " RTI: " + url1[0] +  ", is Incorrect. Please check route.yaml file"
-					print(pdata + "/n")
-					print_to_file(filename, pdata)
-	except AuthError:
-		print("Incorrect Authentication. Please check config.yaml file")
+    url = f'{base_url}/vnms/cloud/systems/getAllAppliancesBasicDetails?offset=0&limit=20'
+    try:
+        sites = get_data(url)
+        #print(sites.text)
+        Site.get_site_names(sites)
+        routes_site_list = read_routes(base_url)
+        for site in routes_site_list:
+            sitename = site[0]
+            url_list = site[1]
+            print()
+            print("SITE: " + sitename)
+            filename = create_file("Routes", sitename)
+            for url1 in url_list:
+                print("!")
+                print(url1)
+                #print(url1[2])
+                try:
+                    routes = get_data(url1[1])
+                    RoutingTable.print_routes_to_file(routes, url1[0], filename)
+                except URLError:
+                    pdata = "Data received Site: " + sitename + " Org: "+ url1[2] + " RTI: " + url1[0] +  ", is Incorrect. Please check route.yaml file"
+                    print(pdata + "/n")
+                    append_to_file(filename, pdata)
+    except AuthError:
+        print("Incorrect Authentication. Please check config.yaml file")
 else:
-	print("VD not reachable")
+    print("VD not reachable")
 

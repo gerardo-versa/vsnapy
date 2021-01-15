@@ -1,6 +1,4 @@
 import json
-import jsondiff
-import tabulate
 
 class RoutingTable:
 	def __init__(self, json):
