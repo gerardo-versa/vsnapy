@@ -35,6 +35,7 @@ class RoutingTable:
 
 	def print_routes_to_file(json_text, name, filename):
 		json_object = json.loads(json_text.text)
+		print(json_object)
 		pairs = json_object.items()
 		outF = open(filename, "a")
 		

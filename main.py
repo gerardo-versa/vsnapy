@@ -53,6 +53,7 @@ def print_to_file(filename, text):
 	print(text, file=outF)
 	outF.close()
 
+#Method to read any yaml file
 def read_yaml(path):
 	url_list = []
 	with open(path) as file:
@@ -66,6 +67,8 @@ def read_config():
 	#print(config)
 	return config
 
+#This method reads the config from the routes.yaml file and..
+# returns a list with arrays of 3 things: site name, rti name, and the url to pull the corresponding rti info
 def read_routes(base_url):
 	basic_route_url = base_url + '/api/operational/devices/device/SITE/live-status/rib/org/org/ORG/routing-instance-name/RTINAME,ipv4/route-entry-summary'
 	url_list = []
@@ -92,29 +95,22 @@ def read_routes(base_url):
 	#print(sites_check_list)
 	return sites_check_list
 
-#def get_site_names(json_text):
-#	json_object = json.loads(json_text.text)
-#	pairs = json_object.items()
-#	for key, value in pairs:
-#		for key  in value:
-#			print(key.get('name'))
-#			print(key.get('ipAddress'))
-#print(routes())
 
-
+#Begining of the main code
+# This pulls the information from the config.yaml file and takes the inputs
 config = read_config()
 user = config['user']
 password = config['password']
 VD_IP = config['director-ip']
 
 print('Director IP: ' + VD_IP + "    User: " + user + "    password: " + password)
-#base_url = 'https://10.48.245.2:9182'
-
+#Creates a base URL that all API calls will use
 base_url = 'https://' + VD_IP + ':9182'
-
+#Checks reachability to Director
 ping = check_ping()
 if ping:
 	url = base_url + '/vnms/cloud/systems/getAllAppliancesBasicDetails?offset=0&limit=20'
+	#tries to fetch the list of sites the Director has. If the request has a 400 error it assumes it is an Auth error (could be something else though, prob need to think this through)
 	try:
 		sites = get_data(url)
 		#print(sites.text)
@@ -129,7 +125,7 @@ if ping:
 			for url1 in url_list:
 				print("!")
 				print(url1)
-				#print(url1[2])
+				#tries to fetch the rti. If the request has a 400 error it assumes the url has incorrect information taken from the .yaml file (could be something else though, prob need to think this through)
 				try:
 					routes = get_data(url1[1])
 					RoutingTable.print_routes_to_file(routes, url1[0], filename)
