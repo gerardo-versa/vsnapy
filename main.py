@@ -14,8 +14,8 @@ from routes import Route, RoutingTable
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 user = 'Administrator'
 password = 'Versa@123$'
-base_url = 'https://10.48.245.2:9182'
-VD_IP = "10.48.245.2"
+#base_url = 'https://10.48.245.2:9182'
+#VD_IP = "10.48.245.2"
 #url = 'https://10.48.245.2:9182/api/config/nms/provider/analytics-cluster'
 
 class AuthError(Exception):
