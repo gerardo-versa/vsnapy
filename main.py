@@ -1,4 +1,5 @@
 import requests
+import getpass
 #import sites_list
 import json
 import jsondiff
@@ -13,7 +14,7 @@ from routes import Route, RoutingTable
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 user = 'Administrator'
 password = 'Versa@123$'
-#base_url = 'https://10.48.245.2:9182'
+base_url = 'https://10.48.245.2:9182'
 VD_IP = "10.48.245.2"
 #url = 'https://10.48.245.2:9182/api/config/nms/provider/analytics-cluster'
 
@@ -100,41 +101,44 @@ def read_routes(base_url):
 # This pulls the information from the config.yaml file and takes the inputs
 config = read_config()
 user = config['user']
-password = config['password']
+#password = config['password']
 VD_IP = config['director-ip']
-
 print('Director IP: ' + VD_IP + "    User: " + user + "    password: " + password)
 #Creates a base URL that all API calls will use
 base_url = 'https://' + VD_IP + ':9182'
 #Checks reachability to Director
 ping = check_ping()
 if ping:
-	url = base_url + '/vnms/cloud/systems/getAllAppliancesBasicDetails?offset=0&limit=20'
+    password = getpass.getpass(prompt='Password for "'+ user +':')
+    url = base_url + '/vnms/cloud/systems/getAllAppliancesBasicDetails?offset=0&limit=20'
 	#tries to fetch the list of sites the Director has. If the request has a 400 error it assumes it is an Auth error (could be something else though, prob need to think this through)
-	try:
-		sites = get_data(url)
-		#print(sites.text)
-		Site.get_site_names(sites)
-		routes_site_list = read_routes(base_url)
-		for site in routes_site_list:
-			sitename = site[0]
-			url_list = site[1]
-			print()
-			print("SITE: " + sitename)
-			filename = create_file("Routes",sitename)
-			for url1 in url_list:
-				print("!")
-				print(url1)
+    print(url)
+    try:
+        sites = get_data(url)
+        #print(sites.text)
+        Site.get_site_names(sites)
+        routes_site_list = read_routes(base_url)
+        for site in routes_site_list:
+            sitename = site[0]
+            url_list = site[1]
+            print()
+            print("SITE: " + sitename)
+            filename = create_file("Routes",sitename)
+            for url1 in url_list:
+                print("!")
+                print(url1)
 				#tries to fetch the rti. If the request has a 400 error it assumes the url has incorrect information taken from the .yaml file (could be something else though, prob need to think this through)
-				try:
-					routes = get_data(url1[1])
-					RoutingTable.print_routes_to_file(routes, url1[0], filename)
-				except URLError:
-					pdata = "Data received Site: " + sitename + " Org: "+ url1[2] + " RTI: " + url1[0] +  ", is Incorrect. Please check route.yaml file"
-					print(pdata + "/n")
-					print_to_file(filename, pdata)
-	except AuthError:
-		print("Incorrect Authentication. Please check config.yaml file")
+                try:
+                    routes = get_data(url1[1])
+                    RoutingTable.print_routes_to_file(routes, url1[0], filename)
+                except URLError:
+                    pdata = "Data received Site: " + sitename + " Org: "+ url1[2] + " RTI: " + url1[0] +  ", is Incorrect. Please check route.yaml file"
+                    print(pdata + "/n")
+                    print_to_file(filename, pdata)
+    except AuthError:
+        print("Incorrect Authentication. Please check config.yaml file")
+    except URLError:
+        print("Incorrect Authentication. Please check config.yaml file")
 else:
-	print("VD not reachable")
+    print("VD not reachable")
 
