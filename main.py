@@ -103,7 +103,6 @@ config = read_config()
 user = config['user']
 #password = config['password']
 VD_IP = config['director-ip']
-print('Director IP: ' + VD_IP + "    User: " + user + "    password: " + password)
 #Creates a base URL that all API calls will use
 base_url = 'https://' + VD_IP + ':9182'
 #Checks reachability to Director
@@ -136,9 +135,9 @@ if ping:
                     print(pdata + "/n")
                     print_to_file(filename, pdata)
     except AuthError:
-        print("Incorrect Authentication. Please check config.yaml file")
+        print("Incorrect Authentication")
     except URLError:
-        print("Incorrect Authentication. Please check config.yaml file")
+        print("Incorrect Authentication")
 else:
     print("VD not reachable")
 
