@@ -6,4 +6,3 @@ pip3 install json-diff
 pip3 install jsondiff
 pip3 install datetime
 pip3 install getpass
-pip3 install getuser
