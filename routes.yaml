@@ -2,10 +2,8 @@
 sites:
     - MEO-GW-02:
         - SES:
-            - SES-Control-VR
             - SES-LAN-VR
 
     - GEO-GW-02:
         - SES:
-            - SES-Control-VR
             - SES-LAN-VR
