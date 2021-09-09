@@ -4,6 +4,6 @@ sites:
         - SES:
             - SES-LAN-VR
 
-    - GEO-GW-02:
-        - SES:
-            - SES-LAN-VR
+#    - GEO-GW-02:
+#        - SES:
+#            - SES-LAN-VR
