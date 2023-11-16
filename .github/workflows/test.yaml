@@ -9,5 +9,5 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Print the input name to STDOUT
+      - name: Print the YAML file content
         run: cat config.yaml
