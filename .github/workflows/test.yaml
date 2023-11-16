@@ -12,4 +12,4 @@ jobs:
 
     steps:
       - name: Print the YAML file content
-        run: cat config.yaml
+        run: echo "version=$(cat config.yaml)" >> $GITHUB_OUTPUT
