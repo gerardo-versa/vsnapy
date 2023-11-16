@@ -1,2 +1,2 @@
 # vsnapy
-Tool to monitor VOS 
+Tool to monitor VOS routes. Results are saved in 'output' folder. 

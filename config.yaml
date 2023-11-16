@@ -1,2 +1,5 @@
 # config.yaml file
-director-ip: 10.196.22.110
+#director-ip: 34.210.227.133
+director-ip: 66.178.53.55
+disable-ping: 'true'
+#disable-ping: 'false'

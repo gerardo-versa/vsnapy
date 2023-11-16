@@ -32,8 +32,8 @@ class VsnapyShell(cmd.Cmd):
 	file = None
 
 	def do_list(self, arg):
-		'Show the list of sites attached to Director (ALL Orgs)'
-		url = base_url + '/vnms/cloud/systems/getAllAppliancesBasicDetails?offset=0&limit=20'
+		'Show the list of sites attached to Director (ALL Orgs). Expects a value for offset (number of devices to display)'
+		url = base_url + '/vnms/cloud/systems/getAllAppliancesBasicDetails?offset=0&limit=' + arg
 		sites = get_data(url,user,password)
 		Site.get_site_names(sites)
 		#tries to fetch the list of sites the Director has. If the request has a 400 error it assumes it is an Auth error (could be something else though, prob need to think this through)
@@ -48,6 +48,10 @@ class VsnapyShell(cmd.Cmd):
 
 	def do_save_routes(self,arg):
 		'Save routes to json and text files'
+		save_routes()
+
+	def do_compare_routes(self,arg):
+		'BETA compare amongst json files for diff'
 		save_routes()
 
 	def close(self):
@@ -151,11 +155,15 @@ def main():
 	config = read_config()
 	global VD_IP
 	VD_IP = config['director-ip']
+	pingdisable = config['disable-ping']
 	#Creates a base URL that all API calls will use
 	global base_url
 	base_url = 'https://' + VD_IP + ':9182'
 	#Checks reachability to Director
-	ping = check_ping(VD_IP)
+	if pingdisable == 'true':
+		ping = True
+	else:
+		ping = check_ping(VD_IP)
 	if ping:
 		global user
 		user = input("Username:")
